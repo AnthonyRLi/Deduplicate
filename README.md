@@ -40,7 +40,7 @@
 3. Save your input json file in the deduplicate/inputOutput folder. There is already a default json file called leads.json in there.
 
 
-4. Run the below command to deduplicate your json file (default output file is dedupedLeads.json, default log file is updateLog.json):
+4. From the root folder, run the below command to deduplicate your json file (default output file is dedupedLeads.json, default log file is updateLog.json):
     ```
     deduplicate remove-duplicates leads.json
     ```
