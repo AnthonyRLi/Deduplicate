@@ -12,11 +12,15 @@ var __rest = (this && this.__rest) || function (s, e) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.removeDupes = void 0;
+const logs_1 = require("./logs");
 const compareDates = (firstLead, secondLead) => {
     const firstDate = new Date(firstLead.entryDate);
     const secondDate = new Date(secondLead.entryDate);
     let firstTime = firstDate.getTime();
     let secondTime = secondDate.getTime();
+    // Check if Times are valid or not. If invalid, set time to 0 so that it's always going to be the last item
+    // and will be considered a dupe. 
+    // We don't want to get rid of these bad entries, though, as the user might want to import them and modify the incorrect time.
     if (!firstTime) {
         firstTime = 0;
     }
@@ -26,7 +30,6 @@ const compareDates = (firstLead, secondLead) => {
     const order = secondTime - firstTime;
     // If two leads have the same time, we want to use the later lead
     // Giving a positive order will bring the Later item to the front
-    console.log(`Leads ${firstLead._id} ${firstDate},${secondLead._id} ${secondDate}, result ${secondLead.index - firstLead.index}`);
     if (order === 0) {
         return secondLead.index - firstLead.index;
     }
@@ -43,6 +46,7 @@ const removeDupes = (leadFile) => {
     let idMap = new Map();
     let emailMap = new Map();
     let finalList = [];
+    let updateLog = [];
     /*
         Sort List - Most recent date first, later index first in case of same date
         1. Create a new leads list with index attached - Index used to calculate which is the later lead in case of dupe + same date
@@ -56,7 +60,6 @@ const removeDupes = (leadFile) => {
     });
     // 2. Sort leads list -------
     const sortedLeadsWithIndex = leadsWithIndex.slice().sort(compareDates);
-    console.log(sortedLeadsWithIndex);
     // 3. Remove index from leads list -------
     const sortedLeads = sortedLeadsWithIndex.map((lead) => {
         const { index } = lead, leadNoIndex = __rest(lead, ["index"]);
@@ -71,12 +74,14 @@ const removeDupes = (leadFile) => {
         // If not a dupe, then populate id and email Maps
         // Add Lead to the final list
         if (store) {
+            updateLog.push((0, logs_1.findUpdates)(lead, idMap.get(lead._id)));
             idMap.set(lead._id, lead);
             emailMap.set(lead.email, lead);
             finalList.push(lead);
         }
     });
     const finalLeadFile = { leads: finalList };
-    return finalLeadFile;
+    const finalLogFile = { logs: updateLog };
+    return { leads: finalLeadFile, logs: finalLogFile };
 };
 exports.removeDupes = removeDupes;
