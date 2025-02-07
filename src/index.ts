@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander'
+import fs from 'fs'
+import { LeadFile, removeDupes } from './util/comparison'
+
 
 
 const prog = new Command();
@@ -15,6 +18,20 @@ prog.command('remove-duplicates')
     .action((fileName: string) => {
         try {
             console.log(fileName)
+
+            const outputFileName = 'deduped-leads.json';
+
+            // Read json file
+            const data = fs.readFileSync(fileName, 'utf-8');
+            const parsedData: LeadFile = JSON.parse(data);
+
+            // Remove dupes
+            const dedupedLeads = removeDupes(parsedData);
+
+            // Output new json file
+            fs.writeFileSync(outputFileName, JSON.stringify(dedupedLeads, null, 2));
+
+            console.log(`Outputted to new file - ${outputFileName}`)
 
 
         } catch (error: unknown) {

@@ -1,0 +1,12 @@
+{
+  "leads": [
+    {
+      "_id": "wuj08238jdsnfsj23",
+      "email": "foo@bar.com",
+      "firstName": "Micah",
+      "lastName": "Valmer",
+      "address": "123 Street St",
+      "entryDate": "2014-05-33T17:31:20+00:00"
+    }
+  ]
+}
