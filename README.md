@@ -7,7 +7,6 @@
 <br>
 
 
-<br>
 **Assumptions:**
 - Leads are all in the format:
     ```
