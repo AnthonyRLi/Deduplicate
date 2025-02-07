@@ -17,7 +17,7 @@ prog.command('remove-duplicates')
     .argument('<file-name>', 'Input file name - JSON File.')
     .action((fileName: string) => {
         try {
-            console.log(fileName)
+            
 
             const outputFileName = 'deduped-leads.json';
 
@@ -31,7 +31,8 @@ prog.command('remove-duplicates')
             // Output new json file
             fs.writeFileSync(outputFileName, JSON.stringify(dedupedLeads, null, 2));
 
-            console.log(`Outputted to new file - ${outputFileName}`)
+            console.log(`Input File: ${fileName}`)
+            console.log(`Outputted to new file: ${outputFileName}`)
 
 
         } catch (error: unknown) {
