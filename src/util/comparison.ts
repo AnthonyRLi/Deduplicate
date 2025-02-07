@@ -1,6 +1,7 @@
 import fs from 'fs'
+import { LogEntry, Update, LogFile, findUpdates } from './logs'
 
-interface Lead {
+export interface Lead {
     _id: string,
     email: string,
     firstName: string,
@@ -9,7 +10,7 @@ interface Lead {
     entryDate: string,
 }
 
-interface LeadWithIndex {
+export interface LeadWithIndex {
     _id: string,
     email: string,
     firstName: string,
@@ -64,13 +65,13 @@ const compareDates = (firstLead: LeadWithIndex, secondLead: LeadWithIndex): numb
     2. If either the Email or Id are duped, Lead is a dupe
     3. If Leads have the same timestamp, choose the Lead that appears last in the file
 */
-export const removeDupes = (leadFile: LeadFile): LeadFile => {
+export const removeDupes = (leadFile: LeadFile): { leads: LeadFile, logs: LogFile } => {
 
     // Create separate Maps to search for Ids and Emails (constant time)
     let idMap = new Map<string, Lead>();
     let emailMap = new Map<string, Lead>();
     let finalList: Lead[] = [];
-    
+    let updateLog: LogEntry[] = []
 
 
     /*
@@ -90,7 +91,6 @@ export const removeDupes = (leadFile: LeadFile): LeadFile => {
 
     // 2. Sort leads list -------
     const sortedLeadsWithIndex = leadsWithIndex.slice().sort(compareDates);
-    console.log(sortedLeadsWithIndex)
 
     // 3. Remove index from leads list -------
     const sortedLeads = sortedLeadsWithIndex.map((lead) => {
@@ -112,14 +112,19 @@ export const removeDupes = (leadFile: LeadFile): LeadFile => {
         // If not a dupe, then populate id and email Maps
         // Add Lead to the final list
         if (store) {
+                        
+            updateLog.push(findUpdates(lead, idMap.get(lead._id)))
+
             idMap.set(lead._id, lead)
             emailMap.set(lead.email, lead)
             finalList.push(lead)
+            
         }
         
     });
         
     const finalLeadFile: LeadFile = { leads: finalList }
+    const finalLogFile: LogFile = { logs: updateLog }
 
-    return finalLeadFile;
+    return {leads: finalLeadFile, logs: finalLogFile };
 }

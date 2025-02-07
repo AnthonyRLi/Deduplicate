@@ -3,6 +3,7 @@
 import { Command } from 'commander'
 import fs from 'fs'
 import { LeadFile, removeDupes } from './util/comparison'
+import { includeUndef } from './util/logs';
 
 
 
@@ -19,20 +20,23 @@ prog.command('remove-duplicates')
         try {
             
 
-            const outputFileName = 'deduped-leads.json';
+            const outputFileName = './dedupedLeads.json';
+            const logFileName = './updateLog.json';
 
             // Read json file
             const data = fs.readFileSync(fileName, 'utf-8');
             const parsedData: LeadFile = JSON.parse(data);
 
             // Remove dupes
-            const dedupedLeads = removeDupes(parsedData);
+            const { leads: dedupedLeads, logs: updateLog } = removeDupes(parsedData);
 
-            // Output new json file
+            // Output JSON files
             fs.writeFileSync(outputFileName, JSON.stringify(dedupedLeads, null, 2));
+            fs.writeFileSync(logFileName, JSON.stringify(updateLog, includeUndef, 2));
 
             console.log(`Input File: ${fileName}`)
             console.log(`Output File: ${outputFileName}`)
+            console.log(`Log File: ${logFileName}`)
 
 
         } catch (error: unknown) {
