@@ -26,13 +26,31 @@ export interface LeadFile {
 
 const compareDates = (firstLead: LeadWithIndex, secondLead: LeadWithIndex): number => {
 
-    const firstDateTime = new Date(firstLead.entryDate);
-    const secondDateTime = new Date(secondLead.entryDate);
-    let order = secondDateTime.getTime() - firstDateTime.getTime();
+    const firstDate = new Date(firstLead.entryDate);
+    const secondDate = new Date(secondLead.entryDate);
+
+    let firstTime = firstDate.getTime();
+    let secondTime = secondDate.getTime();
+
+
+    // Check if Times are valid or not. If invalid, set time to 0 so that it's always going to be the last item
+    // and will be considered a dupe. 
+    // We don't want to get rid of these bad entries, though, as the user might want to import them and modify the incorrect time.
+    if (!firstTime) {
+        firstTime = 0;
+    }
+    
+    if (!secondTime) {
+        secondTime = 0;
+    }
+
+    const order = secondTime - firstTime;
+    
 
     // If two leads have the same time, we want to use the later lead
     // Giving a positive order will bring the Later item to the front
     if (order === 0) {
+        
         return secondLead.index - firstLead.index;
     }
 
@@ -62,15 +80,19 @@ export const removeDupes = (leadFile: LeadFile): LeadFile => {
         3. Remove indexes from sorted leads for final result
     */
 
-    // 1.  -------
-    const leadsWithIndex = leadFile.leads.map((lead, index) => {
-        return { ...lead, index: index };
-    })
+    
+    // 1. Create new leads list with index -------
+    const leadsWithIndex = leadFile.leads
+        
+        .map((lead, index) => { // Add Index
+            return { ...lead, index: index };
+        })
 
-    // 2. -------
+    // 2. Sort leads list -------
     const sortedLeadsWithIndex = leadsWithIndex.slice().sort(compareDates);
+    console.log(sortedLeadsWithIndex)
 
-    // 3. -------
+    // 3. Remove index from leads list -------
     const sortedLeads = sortedLeadsWithIndex.map((lead) => {
         const { index, ...leadNoIndex } = lead;
         
@@ -98,6 +120,6 @@ export const removeDupes = (leadFile: LeadFile): LeadFile => {
     });
         
     const finalLeadFile: LeadFile = { leads: finalList }
-    
+
     return finalLeadFile;
 }

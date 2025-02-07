@@ -13,11 +13,20 @@ var __rest = (this && this.__rest) || function (s, e) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.removeDupes = void 0;
 const compareDates = (firstLead, secondLead) => {
-    const firstDateTime = new Date(firstLead.entryDate);
-    const secondDateTime = new Date(secondLead.entryDate);
-    let order = secondDateTime.getTime() - firstDateTime.getTime();
+    const firstDate = new Date(firstLead.entryDate);
+    const secondDate = new Date(secondLead.entryDate);
+    let firstTime = firstDate.getTime();
+    let secondTime = secondDate.getTime();
+    if (!firstTime) {
+        firstTime = 0;
+    }
+    if (!secondTime) {
+        secondTime = 0;
+    }
+    const order = secondTime - firstTime;
     // If two leads have the same time, we want to use the later lead
     // Giving a positive order will bring the Later item to the front
+    console.log(`Leads ${firstLead._id} ${firstDate},${secondLead._id} ${secondDate}, result ${secondLead.index - firstLead.index}`);
     if (order === 0) {
         return secondLead.index - firstLead.index;
     }
@@ -40,13 +49,15 @@ const removeDupes = (leadFile) => {
         2. Sort
         3. Remove indexes from sorted leads for final result
     */
-    // 1.  -------
-    const leadsWithIndex = leadFile.leads.map((lead, index) => {
+    // 1. Create new leads list with index -------
+    const leadsWithIndex = leadFile.leads
+        .map((lead, index) => {
         return Object.assign(Object.assign({}, lead), { index: index });
     });
-    // 2. -------
+    // 2. Sort leads list -------
     const sortedLeadsWithIndex = leadsWithIndex.slice().sort(compareDates);
-    // 3. -------
+    console.log(sortedLeadsWithIndex);
+    // 3. Remove index from leads list -------
     const sortedLeads = sortedLeadsWithIndex.map((lead) => {
         const { index } = lead, leadNoIndex = __rest(lead, ["index"]);
         return leadNoIndex;
